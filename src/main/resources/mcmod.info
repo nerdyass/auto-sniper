@@ -1,0 +1,16 @@
+[
+{
+  "modid": "", // :)
+  "name": "", // :)
+  "description": "nothing",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "https://github.com/nerdyass/autosniper",
+  "authorList": ["nerdyass"],
+  "credits": "nerdyass, jelteh (snooc) for some of the code",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

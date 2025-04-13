@@ -1,0 +1,37 @@
+# Gradle files
+.gradle/
+build/
+
+# IDE files (IntelliJ, Eclipse, etc.)
+.idea/
+*.iml
+.vscode/
+eclipse/.metadata/.plugins
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Minecraft-related files (you don't want these uploaded)
+.minecraft/
+
+# Backup files
+*.bak
+
+# Log files
+logs/
+
+# Sensitive files (if you have keys or credentials)
+*.env
+
+# License Files that you don’t want in GitHub
+CREDITS-fml.txt
+LICENSE-fml.txt
+MinecraftForge-Credits.txt
+MinecraftForge-License.txt
+Paulscode IBXM Library License.txt
+Paulscode SoundSystem CodecIBXM License.txt
+forge-1.8.9-11.15.1.2318-1.8.9-changelog.txt
+README.txt
+run/
+
