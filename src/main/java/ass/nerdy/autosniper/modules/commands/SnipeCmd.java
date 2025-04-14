@@ -14,12 +14,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class tPC extends CommandBase {
+public class SnipeCmd extends CommandBase {
     final String prefix = EnumChatFormatting.GRAY + "[" + EnumChatFormatting.LIGHT_PURPLE + "N" + EnumChatFormatting.GRAY + "] ";
 
     private final pC checker;
 
-    public tPC(pC checker) {
+    public SnipeCmd(pC checker) {
         this.checker = checker;
     }
 

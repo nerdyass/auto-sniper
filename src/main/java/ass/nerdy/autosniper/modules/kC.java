@@ -1,4 +1,4 @@
-package ass.nerdy.autosniper.modules.commands;
+package ass.nerdy.autosniper.modules;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

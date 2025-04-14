@@ -1,6 +1,5 @@
 package ass.nerdy.autosniper.modules;
 
-import ass.nerdy.autosniper.modules.commands.kC;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.network.NetworkPlayerInfo;

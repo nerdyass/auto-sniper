@@ -22,12 +22,12 @@ public class AutoSniper {
         checker = new pC();
         MinecraftForge.EVENT_BUS.register(checker);
 
-        ClientCommandHandler.instance.registerCommand(new tPC(checker));
-        ClientCommandHandler.instance.registerCommand(new tARQ(checker));
-        ClientCommandHandler.instance.registerCommand(new aqM(checker));
-        ClientCommandHandler.instance.registerCommand(new tH(checker));
-        ClientCommandHandler.instance.registerCommand(new fS(checker));
-        ClientCommandHandler.instance.registerCommand(new aK());
-        ClientCommandHandler.instance.registerCommand(new bL());
+        ClientCommandHandler.instance.registerCommand(new SnipeCmd(checker));
+        ClientCommandHandler.instance.registerCommand(new AutoRqCmd(checker));
+        ClientCommandHandler.instance.registerCommand(new ModeCmd(checker));
+        ClientCommandHandler.instance.registerCommand(new HUDCmd(checker));
+        ClientCommandHandler.instance.registerCommand(new MinFKDRCmd(checker));
+        ClientCommandHandler.instance.registerCommand(new KeyCmd());
+        ClientCommandHandler.instance.registerCommand(new TargetCmd());
     }
 }

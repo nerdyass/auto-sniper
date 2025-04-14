@@ -11,7 +11,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class aK extends CommandBase {
+public class KeyCmd extends CommandBase {
     private final String prefix = EnumChatFormatting.GRAY + "[" + EnumChatFormatting.LIGHT_PURPLE + "N" + EnumChatFormatting.GRAY + "] ";
 
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();

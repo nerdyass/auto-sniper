@@ -14,12 +14,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class tARQ extends CommandBase {
+public class AutoRqCmd extends CommandBase {
     private final pC checker;
 
     final String prefix = EnumChatFormatting.GRAY + "[" + EnumChatFormatting.LIGHT_PURPLE + "N" + EnumChatFormatting.GRAY + "] ";
 
-    public tARQ(pC checker) {
+    public AutoRqCmd(pC checker) {
         this.checker = checker;
     }
 

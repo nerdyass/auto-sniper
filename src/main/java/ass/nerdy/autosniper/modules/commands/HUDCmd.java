@@ -14,12 +14,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class tH extends CommandBase {
+public class HUDCmd extends CommandBase {
     final String prefix = EnumChatFormatting.GRAY + "[" + EnumChatFormatting.LIGHT_PURPLE + "N" + EnumChatFormatting.GRAY + "] ";
 
     private final pC checker;
 
-    public tH(pC checker) {
+    public HUDCmd(pC checker) {
         this.checker = checker;
     }
 
