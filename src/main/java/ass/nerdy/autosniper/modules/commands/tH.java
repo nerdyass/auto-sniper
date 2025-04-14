@@ -2,6 +2,8 @@ package ass.nerdy.autosniper.modules.commands;
 
 import ass.nerdy.autosniper.modules.pC;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
@@ -11,8 +13,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 public class tH extends CommandBase {
     final String prefix = EnumChatFormatting.GRAY + "[" + EnumChatFormatting.LIGHT_PURPLE + "N" + EnumChatFormatting.GRAY + "] ";
@@ -43,7 +43,9 @@ public class tH extends CommandBase {
 
         sender.addChatMessage(
                 new ChatComponentText(
-                        prefix + EnumChatFormatting.GREEN + "HUD is now " + (currentStatus ? EnumChatFormatting.AQUA + "visible" : EnumChatFormatting.RED + "hidden") + "."
+                        prefix + EnumChatFormatting.GREEN + "HUD is now " + (currentStatus
+                                                                             ? EnumChatFormatting.AQUA + "visible"
+                                                                             : EnumChatFormatting.RED + "hidden") + "."
                 )
         );
     }
@@ -62,7 +64,6 @@ public class tH extends CommandBase {
                 try (FileWriter writer = new FileWriter(configFile)) {
                     writer.write(existingConfig.toString());
                 }
-
             } catch (IOException e) {
                 e.printStackTrace();
             }

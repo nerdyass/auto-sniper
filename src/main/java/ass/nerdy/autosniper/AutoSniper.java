@@ -6,7 +6,6 @@ import ass.nerdy.autosniper.modules.pC;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 
 @Mod(modid = AutoSniper.MODID, version = AutoSniper.VERSION)
@@ -16,7 +15,7 @@ public class AutoSniper {
 
     private pC checker;
 
-    @EventHandler
+    @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         cF.InitConfig();
         MinecraftForge.EVENT_BUS.register(this);

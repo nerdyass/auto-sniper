@@ -2,6 +2,8 @@ package ass.nerdy.autosniper.modules.commands;
 
 import ass.nerdy.autosniper.modules.pC;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
@@ -11,8 +13,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 public class tARQ extends CommandBase {
     private final pC checker;
@@ -58,7 +58,6 @@ public class tARQ extends CommandBase {
                 try (FileWriter writer = new FileWriter(configFile)) {
                     writer.write(existingConfig.toString());
                 }
-
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -1,6 +1,5 @@
 package ass.nerdy.autosniper.modules;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -58,7 +57,6 @@ public class cF {
                 try (FileWriter writer = new FileWriter(configFile)) {
                     writer.write(eC.toString());
                 }
-
             } catch (IOException e) {
                 e.printStackTrace();
             }

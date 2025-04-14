@@ -9,8 +9,8 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,7 +75,6 @@ public class aqM extends CommandBase {
             try (FileWriter writer = new FileWriter(CONFIG_FILE)) {
                 GSON.toJson(config, writer);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }

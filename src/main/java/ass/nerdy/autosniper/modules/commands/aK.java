@@ -63,7 +63,8 @@ public class aK extends CommandBase {
                 gson.toJson(config, writer);
             }
 
-            sender.addChatMessage(new ChatComponentText(prefix + EnumChatFormatting.LIGHT_PURPLE + apiKeyName + EnumChatFormatting.GREEN + " saved successfully!"));
+            sender.addChatMessage(
+                    new ChatComponentText(prefix + EnumChatFormatting.LIGHT_PURPLE + apiKeyName + EnumChatFormatting.GREEN + " saved successfully!"));
         } catch (IOException e) {
             sender.addChatMessage(new ChatComponentText(prefix + EnumChatFormatting.RED + "Failed to save " + apiKeyName + ": " + e.getMessage()));
         }

@@ -40,7 +40,9 @@ public class tPC extends CommandBase {
         updatePCC(currentStatus);
         sender.addChatMessage(
                 new ChatComponentText(
-                        prefix + EnumChatFormatting.GREEN + "Player stats checking is now " + (currentStatus ? EnumChatFormatting.AQUA + "enabled" : EnumChatFormatting.RED + "disabled") + "."
+                        prefix + EnumChatFormatting.GREEN + "Player stats checking is now " + (currentStatus
+                                                                                               ? EnumChatFormatting.AQUA + "enabled"
+                                                                                               : EnumChatFormatting.RED + "disabled") + "."
                 )
         );
     }
@@ -59,7 +61,6 @@ public class tPC extends CommandBase {
                 try (FileWriter writer = new FileWriter(configFile)) {
                     writer.write(existingConfig.toString());
                 }
-
             } catch (IOException e) {
                 e.printStackTrace();
             }

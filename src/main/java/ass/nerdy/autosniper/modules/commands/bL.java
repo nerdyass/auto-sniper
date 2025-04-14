@@ -58,7 +58,8 @@ public class bL extends CommandBase {
             writer = new FileWriter(file, true);
             writer.write(username + "\n");
 
-            sender.addChatMessage(new ChatComponentText(prefix + EnumChatFormatting.GREEN + "User " + EnumChatFormatting.RED + username + EnumChatFormatting.GREEN + " has been added to targets!"));
+            sender.addChatMessage(new ChatComponentText(
+                    prefix + EnumChatFormatting.GREEN + "User " + EnumChatFormatting.RED + username + EnumChatFormatting.GREEN + " has been added to targets!"));
         } catch (IOException e) {
             sender.addChatMessage(new ChatComponentText(prefix + EnumChatFormatting.RED + "Failed to blacklist user: " + e.getMessage()));
         } finally {
