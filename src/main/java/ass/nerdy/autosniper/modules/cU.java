@@ -1,4 +1,4 @@
-package com.bedwars.ntils.modules;
+package ass.nerdy.autosniper.modules;
 
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;

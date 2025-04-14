@@ -1,6 +1,6 @@
-package com.bedwars.ntils.modules;
+package ass.nerdy.autosniper.modules;
 
-import com.bedwars.ntils.modules.commands.kC;
+import ass.nerdy.autosniper.modules.commands.kC;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.network.NetworkPlayerInfo;
@@ -348,5 +348,3 @@ public class pC {
             return this.hudVisible;
         }
     }
-
-

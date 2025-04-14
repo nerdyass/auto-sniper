@@ -1,4 +1,4 @@
-package com.bedwars.ntils.modules.commands;
+package ass.nerdy.autosniper.modules.commands;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;

@@ -1,4 +1,4 @@
-package com.bedwars.ntils.modules.commands;
+package ass.nerdy.autosniper.modules.commands;
 
 import com.google.gson.*;
 import net.minecraft.command.CommandBase;

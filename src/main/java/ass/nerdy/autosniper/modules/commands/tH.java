@@ -1,6 +1,6 @@
-package com.bedwars.ntils.modules.commands;
+package ass.nerdy.autosniper.modules.commands;
 
-import com.bedwars.ntils.modules.pC;
+import ass.nerdy.autosniper.modules.pC;
 import com.google.gson.JsonElement;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
@@ -14,37 +14,41 @@ import java.io.IOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class tARQ extends CommandBase {
-    private final pC checker;
-
+public class tH extends CommandBase {
     final String prefix = EnumChatFormatting.GRAY + "[" + EnumChatFormatting.LIGHT_PURPLE + "N" + EnumChatFormatting.GRAY + "] ";
 
-    public tARQ(pC checker) {
+    private final pC checker;
+
+    public tH(pC checker) {
         this.checker = checker;
     }
 
     @Override
     public String getCommandName() {
-        return "autorq";
+        return "hud";
     }
 
     @Override
     public String getCommandUsage(ICommandSender sender) {
-        return "/autorq - Toggle Auto-RQ on or off.";
+        return "/hud - Toggle the visibility of the HUD.";
     }
 
     @Override
     public void processCommand(ICommandSender sender, String[] args) {
-        checker.setAutoRqEnabled(!checker.isAutoRqEnabled());
+        checker.tHudVisibility();
 
-        String status = checker.isAutoRqEnabled() ? EnumChatFormatting.AQUA + "enabled" : EnumChatFormatting.RED + "disabled";
+        boolean currentStatus = checker.isHudVisible();
 
-        updateAutoRqConfig(checker.isAutoRqEnabled());
+        updateHudConfig(currentStatus);
 
-        sender.addChatMessage(new ChatComponentText(prefix + EnumChatFormatting.GREEN + "Auto-RQ is now " + status));
+        sender.addChatMessage(
+                new ChatComponentText(
+                        prefix + EnumChatFormatting.GREEN + "HUD is now " + (currentStatus ? EnumChatFormatting.AQUA + "visible" : EnumChatFormatting.RED + "hidden") + "."
+                )
+        );
     }
 
-    private void updateAutoRqConfig(boolean enabled) {
+    private void updateHudConfig(boolean visible) {
         File configFile = new File("config/autosniper.json");
 
         if (configFile.exists()) {
@@ -53,7 +57,7 @@ public class tARQ extends CommandBase {
                 JsonElement element = parser.parse(reader);
                 JsonObject existingConfig = element.getAsJsonObject();
 
-                existingConfig.addProperty("autoRqEnabled", enabled);
+                existingConfig.addProperty("hudVisible", visible);
 
                 try (FileWriter writer = new FileWriter(configFile)) {
                     writer.write(existingConfig.toString());

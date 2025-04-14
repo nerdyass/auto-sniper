@@ -1,6 +1,6 @@
-package com.bedwars.ntils.modules.commands;
+package ass.nerdy.autosniper.modules.commands;
 
-import com.bedwars.ntils.modules.pC;
+import ass.nerdy.autosniper.modules.pC;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

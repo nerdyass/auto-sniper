@@ -1,15 +1,16 @@
-package com.bedwars.ntils;
+package ass.nerdy.autosniper;
 
-import com.bedwars.ntils.modules.*;
-import com.bedwars.ntils.modules.commands.*;
+import ass.nerdy.autosniper.modules.cF;
+import ass.nerdy.autosniper.modules.commands.*;
+import ass.nerdy.autosniper.modules.pC;
+import net.minecraftforge.client.ClientCommandHandler;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.client.ClientCommandHandler;
-import net.minecraftforge.common.MinecraftForge;
 
-@Mod(modid = ntils.MODID, version = ntils.VERSION)
-public class ntils {
+@Mod(modid = AutoSniper.MODID, version = AutoSniper.VERSION)
+public class AutoSniper {
     public static final String MODID = "AS";
     public static final String VERSION = "2.6";
 
