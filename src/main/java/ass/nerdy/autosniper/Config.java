@@ -2,7 +2,7 @@ package ass.nerdy.autosniper;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.Formatting;
 
 import java.io.File;
 import java.io.FileReader;
@@ -93,7 +93,7 @@ public class Config {
             AutoSniper.config.fkdrValue = Integer.parseInt(str, 10);
             return true;
         } catch (NumberFormatException ex) {
-            AutoSniper.log(EnumChatFormatting.RED + "Invalid FKDR value! Please enter a valid number.");
+            AutoSniper.log(Formatting.RED + "Invalid FKDR value! Please enter a valid number.");
             return false;
         }
     }

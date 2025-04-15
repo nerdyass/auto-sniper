@@ -1,37 +1,37 @@
 package ass.nerdy.autosniper.commands;
 
 import ass.nerdy.autosniper.AutoSniper;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.util.EnumChatFormatting;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.util.Formatting;
 
-public class MinFKDRCmd extends CommandBase {
-    @Override
-    public String getCommandName() {
-        return "minfkdr";
+public class MinFKDRCmd {
+
+    public MinFKDRCmd() {
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
+                register(dispatcher)
+        );
     }
 
-    @Override
-    public String getCommandUsage(ICommandSender sender) {
-        return "/minfkdr [fkdr value]";
-    }
-
-    @Override
-    public void processCommand(ICommandSender sender, String[] args) {
-        if (args.length == 0) {
-            AutoSniper.log(EnumChatFormatting.RED + "You must provide an FKDR value to set!");
-            return;
-        }
-
-        if (AutoSniper.config.setFKDRValue(args[0])) {
-            AutoSniper.log(EnumChatFormatting.GREEN + "Minimum FKDR set to: " + EnumChatFormatting.AQUA + args[0]);
-        } else {
-            AutoSniper.log(EnumChatFormatting.RED + "Invalid number");
-        }
-    }
-
-    @Override
-    public int getRequiredPermissionLevel() {
-        return 0;
+    public void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
+        dispatcher.register(ClientCommandManager.literal("minfkdr")
+                .then(ClientCommandManager.argument("fkdr", DoubleArgumentType.doubleArg())
+                        .executes(ctx -> {
+                            double fkdrValue = DoubleArgumentType.getDouble(ctx, "fkdr");
+                            if (AutoSniper.config.setFKDRValue(String.valueOf(fkdrValue))) {
+                                AutoSniper.log(Formatting.GREEN + "Minimum FKDR set to: " + Formatting.AQUA + fkdrValue);
+                            } else {
+                                AutoSniper.log(Formatting.RED + "Invalid number");
+                            }
+                            return 1;
+                        }))
+                .executes(ctx -> {
+                    AutoSniper.log(Formatting.RED + "You must provide an FKDR value to set!");
+                    return 0;
+                })
+        );
     }
 }

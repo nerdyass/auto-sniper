@@ -1,10 +1,11 @@
 package ass.nerdy.autosniper;
 
-import net.minecraft.scoreboard.ScorePlayerTeam;
+import net.minecraft.scoreboard.Team;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 
 import static ass.nerdy.autosniper.AutoSniper.mc;
 
-// ik bad practise to put all utils in a Util file but whatever
 public class Util {
     public static int parseIntSafely(String value) {
         try {
@@ -15,19 +16,19 @@ public class Util {
     }
 
     public static String getFormattedDisplayName(String playerName) {
-        ScorePlayerTeam playerTeam = mc.theWorld.getScoreboard().getPlayersTeam(playerName);
+        Team playerTeam = mc.world.getScoreboard().getScoreHolderTeam(playerName);
         if (playerTeam == null) {
             return "NONE";
         }
-        int length = playerTeam.getColorPrefix().length();
+        int length = playerTeam.getColor().getName().length();
         if (length == 10) {
-            return playerTeam.getColorPrefix() + playerName + playerTeam.getColorSuffix();
+            return playerTeam.getPrefix() + playerName + playerTeam.getSuffix();
         }
         return "NONE";
     }
 
-    public static void playSound(String soundName, float volume, float pitch) {
-        if (mc.thePlayer == null) return;
-        mc.theWorld.playSound(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, soundName, volume, pitch, false);
+    public static void playSound(SoundEvent soundEvent, SoundCategory category, float volume, float pitch) {
+        if (mc.player == null) return;
+        mc.world.playSound(mc.player.getX(), mc.player.getY(), mc.player.getZ(), soundEvent, category, volume, pitch, false);
     }
 }

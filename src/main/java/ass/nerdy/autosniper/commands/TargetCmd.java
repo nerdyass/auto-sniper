@@ -1,36 +1,40 @@
 package ass.nerdy.autosniper.commands;
 
 import ass.nerdy.autosniper.AutoSniper;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.util.EnumChatFormatting;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.util.Formatting;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class TargetCmd extends CommandBase {
-    @Override
-    public String getCommandName() {
-        return "target";
+public class TargetCmd {
+
+    public TargetCmd() {
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
+                register(dispatcher)
+        );
     }
 
-    @Override
-    public String getCommandUsage(ICommandSender sender) {
-        return "/target <username>";
-    }
+    public void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
+        dispatcher.register(ClientCommandManager.literal("target")
+                .then(ClientCommandManager.argument("username", StringArgumentType.word())
+                        .executes(ctx -> {
+                            String username = StringArgumentType.getString(ctx, "username");
+                            File blacklistFile = new File("config/blacklist.txt");
 
-    @Override
-    public void processCommand(ICommandSender sender, String[] args) {
-        if (args.length < 1) {
-            AutoSniper.log(EnumChatFormatting.RED + "Usage: /target <username>");
-            return;
-        }
-
-        String username = args[0];
-        File blacklistFile = new File("config/blacklist.txt");
-
-        saveUser(blacklistFile, username);
+                            saveUser(blacklistFile, username);
+                            return 1;
+                        }))
+                .executes(ctx -> {
+                    AutoSniper.log(Formatting.RED + "Usage: /target <username>");
+                    return 0;
+                })
+        );
     }
 
     // I'm very aware this whole blacklist system is OUTDATED to shit, will be on the priority list for updating.
@@ -46,22 +50,17 @@ public class TargetCmd extends CommandBase {
             writer.write(username + "\n");
 
             AutoSniper.log(
-                    EnumChatFormatting.GREEN + "User " + EnumChatFormatting.RED + username + EnumChatFormatting.GREEN + " has been added to targets!");
+                    Formatting.GREEN + "User " + Formatting.RED + username + Formatting.GREEN + " has been added to targets!");
         } catch (IOException e) {
-            AutoSniper.log(EnumChatFormatting.RED + "Failed to blacklist user: " + e.getMessage());
+            AutoSniper.log(Formatting.RED + "Failed to blacklist user: " + e.getMessage());
         } finally {
             if (writer != null) {
                 try {
                     writer.close();
                 } catch (IOException e) {
-                    AutoSniper.log(EnumChatFormatting.RED + "Error closing file writer: " + e.getMessage());
+                    AutoSniper.log(Formatting.RED + "Error closing file writer: " + e.getMessage());
                 }
             }
         }
-    }
-
-    @Override
-    public int getRequiredPermissionLevel() {
-        return 0;
     }
 }

@@ -1,17 +1,9 @@
 pluginManagement {
     repositories {
-        mavenCentral()
-        gradlePluginPortal()
-        maven { url = "https://maven.minecraftforge.net/" }
-        maven { url = "https://jitpack.io/" }
-    }
-    resolutionStrategy {
-        eachPlugin {
-            switch (requested.id.id) {
-                case "net.minecraftforge.gradle.forge":
-                    useModule("com.github.ccbluex:ForgeGradle:a3d86a59c0")
-                    break
-            }
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
         }
+        gradlePluginPortal()
     }
 }

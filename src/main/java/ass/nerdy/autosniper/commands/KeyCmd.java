@@ -1,42 +1,40 @@
 package ass.nerdy.autosniper.commands;
 
 import ass.nerdy.autosniper.AutoSniper;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.util.EnumChatFormatting;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.util.Formatting;
 
-public class KeyCmd extends CommandBase {
-    @Override
-    public String getCommandName() {
-        return "key";
+public class KeyCmd {
+
+    public KeyCmd() {
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
+                register(dispatcher)
+        );
     }
 
-    @Override
-    public String getCommandUsage(ICommandSender sender) {
-        return "/key <apikey>";
-    }
+    public void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
+        dispatcher.register(ClientCommandManager.literal("key")
+                .then(ClientCommandManager.argument("apikey", StringArgumentType.string())
+                        .executes(ctx -> {
+                            String apiKey = StringArgumentType.getString(ctx, "apikey");
+                            String apiKeyName = "Hypixel API key";
 
-    @Override
-    public void processCommand(ICommandSender sender, String[] args) {
-        if (args.length < 1) {
-            AutoSniper.log(EnumChatFormatting.RED + "Usage: /key <apikey>");
-            return;
-        }
-
-        String apiKey = args[0];
-
-        String apiKeyName = "Hypixel API key";
-
-        AutoSniper.config.apiKey = apiKey;
-        if (AutoSniper.config.save()) {
-            AutoSniper.log(EnumChatFormatting.LIGHT_PURPLE + apiKeyName + EnumChatFormatting.GREEN + " saved successfully!");
-        } else {
-            AutoSniper.log(EnumChatFormatting.RED + "Failed to save " + apiKeyName);
-        }
-    }
-
-    @Override
-    public int getRequiredPermissionLevel() {
-        return 0;
+                            AutoSniper.config.apiKey = apiKey;
+                            if (AutoSniper.config.save()) {
+                                AutoSniper.log(Formatting.LIGHT_PURPLE + apiKeyName + Formatting.GREEN + " saved successfully!");
+                            } else {
+                                AutoSniper.log(Formatting.RED + "Failed to save " + apiKeyName);
+                            }
+                            return 1;
+                        }))
+                .executes(ctx -> {
+                    AutoSniper.log(Formatting.RED + "Usage: /key <apikey>");
+                    return 0;
+                })
+        );
     }
 }

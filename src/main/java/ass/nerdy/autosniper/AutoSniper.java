@@ -1,42 +1,52 @@
 package ass.nerdy.autosniper;
 
 import ass.nerdy.autosniper.commands.*;
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.ChatComponentText;
-import net.minecraftforge.client.ClientCommandHandler;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import ass.nerdy.autosniper.orbit.EventBus;
+import ass.nerdy.autosniper.orbit.IEventBus;
+import net.fabricmc.api.ModInitializer;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.text.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Mod(modid = AutoSniper.MODID, version = AutoSniper.VERSION)
-public class AutoSniper {
-    public static final String MODID = "AS"; // TODO: detectable by hypixel but prob doesn't matter
+import java.lang.invoke.MethodHandles;
+
+import static net.fabricmc.loader.impl.FabricLoaderImpl.MOD_ID;
+
+public class AutoSniper implements ModInitializer {
+    public static final String MODID = "AS"; // NOT DETECTABLE BY HYPIXEL ON 1.20 I THINK AUGHHHH
     public static final String VERSION = "2.6";
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+    public static IEventBus EVENTBUS = new EventBus();
+    public static String packagePrefix = "ass.nerdy.autosniper";
 
-    public static Minecraft mc;
+    public static MinecraftClient mc;
     public static Config config;
 
-    @Mod.EventHandler
-    public void init(FMLInitializationEvent event) {
-        mc = Minecraft.getMinecraft();
+    @Override
+    public void onInitialize() {
+        LOGGER.info("Initializing " + MODID + " version " + VERSION);
+        mc = MinecraftClient.getInstance();
 
         config = new Config();
         config.load();
-
-        MinecraftForge.EVENT_BUS.register(this);
+        EVENTBUS.registerLambdaFactory(packagePrefix, (lookupInMethod, klass) -> (MethodHandles.Lookup) lookupInMethod.invoke(null, klass, MethodHandles.lookup()));
 
         Checker checker = new Checker();
-        ClientCommandHandler.instance.registerCommand(new SnipeCmd(checker));
-        ClientCommandHandler.instance.registerCommand(new AutoRqCmd());
-        ClientCommandHandler.instance.registerCommand(new ModeCmd());
-        ClientCommandHandler.instance.registerCommand(new HUDCmd(checker));
-        ClientCommandHandler.instance.registerCommand(new MinFKDRCmd());
-        ClientCommandHandler.instance.registerCommand(new KeyCmd());
-        ClientCommandHandler.instance.registerCommand(new TargetCmd());
+        EVENTBUS.subscribe(checker);
+
+        // ouuhhhhhh
+        new SnipeCmd(checker);
+        new AutoRqCmd();
+        new ModeCmd();
+        new HUDCmd(checker);
+        new MinFKDRCmd();
+        new KeyCmd();
+        new TargetCmd();
     }
 
-    public static void log(String message) {
-        mc.ingameGUI.getChatGUI().printChatMessage(new ChatComponentText(
+    public static void log(String message) { // wow so much simpler
+        mc.player.sendMessage(Text.literal(
                 "§7[§dN§7] §r" + message
         ));
     }

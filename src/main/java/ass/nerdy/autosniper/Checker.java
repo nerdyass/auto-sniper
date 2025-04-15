@@ -1,13 +1,14 @@
 package ass.nerdy.autosniper;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.network.NetworkPlayerInfo;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraftforge.client.event.ClientChatReceivedEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import ass.nerdy.autosniper.event.events.HudRenderEvent;
+import ass.nerdy.autosniper.event.events.ReceiveMessageEvent;
+import ass.nerdy.autosniper.orbit.EventHandler;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Formatting;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -23,10 +24,6 @@ import static ass.nerdy.autosniper.Util.*;
 public class Checker {
     private boolean inBwGame;
     private boolean overlay = true;
-
-    public Checker() {
-        MinecraftForge.EVENT_BUS.register(this);
-    }
 
     private static String fetchPlayerData(String uuid, String currentApiKey) throws IOException {
         URL url = new URL("https://api.hypixel.net/player?key=" + currentApiKey + "&uuid=" + uuid);
@@ -44,14 +41,15 @@ public class Checker {
     }
 
     public boolean isPlayerInGame() {
-        return mc.thePlayer != null && mc.theWorld != null;
+        return mc.player != null && mc.world != null;
     }
 
-    @SubscribeEvent
-    public void onChatMessageReceived(ClientChatReceivedEvent event) {
+    @EventHandler
+    public void onChatMessageReceived(ReceiveMessageEvent event) {
         if (!isPlayerInGame()) return;
-        String msg = event.message.getUnformattedText();
-
+        String msg = event.getMessage().getLiteralString();
+        if (msg == null) return;
+        
         if (msg.contains("1st Killer") || msg.contains("joined the lobby") || msg.contains("has joined (")) {
             inBwGame = false;
         } else if (msg.contains("Protect your bed and destroy the enemy beds.") || msg.contains("Players swap teams at random")) {
@@ -70,24 +68,26 @@ public class Checker {
                 e.printStackTrace();
             }
 
-            Collection<NetworkPlayerInfo> playerInfoCollection = Minecraft.getMinecraft().getNetHandler().getPlayerInfoMap();
-            Collection<NetworkPlayerInfo> safePlayerInfoCollection = new CopyOnWriteArrayList<>(playerInfoCollection);
+            ClientPlayNetworkHandler networkHandler = mc.getNetworkHandler();
+
+            Collection<PlayerListEntry> playerInfoCollection = networkHandler.getPlayerList();
+            Collection<PlayerListEntry> safePlayerInfoCollection = new CopyOnWriteArrayList<>(playerInfoCollection);
             List<String> blacklistedUsers = AutoSniper.config.getBlacklistedUsers();
 
             ExecutorService executor = Executors.newFixedThreadPool(8); // 8 to slightly help with ratelimit
             List<Future<Boolean>> futures = new CopyOnWriteArrayList<>();
 
-            for (NetworkPlayerInfo playerInfo : safePlayerInfoCollection) {
+            for (PlayerListEntry playerInfo : safePlayerInfoCollection) {
                 futures.add(executor.submit(() -> {
-                    String uuid = playerInfo.getGameProfile().getId().toString();
-                    String ign = playerInfo.getGameProfile().getName();
+                    String uuid = playerInfo.getProfile().getId().toString();
+                    String ign = playerInfo.getProfile().getName();
                     String tabDisplayName = getFormattedDisplayName(ign);
 
                     if ("NONE".equals(tabDisplayName)) return false;
 
                     if (blacklistedUsers.contains(ign)) {
-                        playSound("random.levelup", 1.0f, 1.0f);
-                        AutoSniper.log(EnumChatFormatting.RED + tabDisplayName + EnumChatFormatting.RED + " is BLACKLISTED!");
+                        playSound(SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 1.0f, 1.0f);
+                        AutoSniper.log(Formatting.RED + tabDisplayName + Formatting.RED + " is BLACKLISTED!");
                         return true;
                     }
 
@@ -95,15 +95,15 @@ public class Checker {
                     if (playerData != null) {
                         double fkdr = playerData.getFkdr();
                         if (fkdr >= getMinFKDR()) {
-                            playSound("note.pling", 1.0f, 1.0f);
+                            playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), SoundCategory.BLOCKS, 1.0f, 1.0f);
                             AutoSniper.log(
-                                    EnumChatFormatting.DARK_PURPLE + tabDisplayName + EnumChatFormatting.AQUA + " has FKDR: " + EnumChatFormatting.DARK_PURPLE + fkdr);
+                                    Formatting.DARK_PURPLE + tabDisplayName + Formatting.AQUA + " has FKDR: " + Formatting.DARK_PURPLE + fkdr);
                             return true;
                         }
                     } else {
                         System.out.println(ign + " is NOT a valid Hypixel player.");
-                        playSound("random.levelup", 1.0f, 1.0f);
-                        AutoSniper.log(EnumChatFormatting.LIGHT_PURPLE + tabDisplayName + EnumChatFormatting.LIGHT_PURPLE + " is nicked!");
+                        playSound(SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 1.0f, 1.0f);
+                        AutoSniper.log(Formatting.LIGHT_PURPLE + tabDisplayName + Formatting.LIGHT_PURPLE + " is nicked!");
                         return true;
                     }
                     return false;
@@ -127,7 +127,7 @@ public class Checker {
 
             AutoSniper.log("§aChecks completed");
             if (!anyValidPlayer && AutoSniper.config.autoRqEnabled && !AutoSniper.config.autoRqCommand.isEmpty()) {
-                mc.thePlayer.sendChatMessage(AutoSniper.config.autoRqCommand);
+                mc.getNetworkHandler().sendCommand(AutoSniper.config.autoRqCommand);
                 AutoSniper.log("§aAuto-RQ executed: " + AutoSniper.config.autoRqCommand);
             }
         }).start();
@@ -145,7 +145,7 @@ public class Checker {
         try {
             String currentApiKey = AutoSniper.config.apiKey;
             if (currentApiKey == null || currentApiKey.isEmpty()) {
-                AutoSniper.log(EnumChatFormatting.RED + "Error, Key Not Set!");
+                AutoSniper.log(Formatting.RED + "Error, Key Not Set!");
                 return null;
             }
             String responseBody = fetchPlayerData(uuid, currentApiKey);
@@ -195,30 +195,31 @@ public class Checker {
         AutoSniper.config.playerCheckEnabled = !AutoSniper.config.playerCheckEnabled;
     }
 
-    @SubscribeEvent
-    public void onRenderOverlay(RenderGameOverlayEvent.Text event) {
+    @EventHandler
+    public void onRenderOverlay(HudRenderEvent event) {
         if (!overlay) return;
 
-        FontRenderer font = mc.fontRendererObj;
+        // FontRenderer font = mc.fontRendererObj;
+        DrawContext context = event.drawContext;
 
         int x = 10;
         int y = 10;
         int lineSpacing = 10;
         int color = 0xFFFFFF;
 
-        String autoRqStatus = "auto-rq: " + (isAutoRqEnabled() ? EnumChatFormatting.GREEN + "enabled" : EnumChatFormatting.RED + "disabled");
-        font.drawStringWithShadow(autoRqStatus, x, y, color);
+        String autoRqStatus = "auto-rq: " + (isAutoRqEnabled() ? Formatting.GREEN + "enabled" : Formatting.RED + "disabled");
+        context.drawTextWithShadow(mc.textRenderer, autoRqStatus, x, y, color);
 
         if (isAutoRqEnabled()) {
             y += lineSpacing;
-            String autoRqCommandText = "cmd: " + EnumChatFormatting.AQUA + AutoSniper.config.autoRqCommand;
-            font.drawStringWithShadow(autoRqCommandText, x, y, color);
+            String autoRqCommandText = "cmd: " + Formatting.AQUA + AutoSniper.config.autoRqCommand;
+            context.drawTextWithShadow(mc.textRenderer, autoRqCommandText, x, y, color);
         }
 
         y += lineSpacing;
         String snipeCommand =
-                "stats-check: " + (AutoSniper.config.playerCheckEnabled ? EnumChatFormatting.GREEN + "enabled" : EnumChatFormatting.RED + "disabled");
-        font.drawStringWithShadow(snipeCommand, x, y, color);
+                "stats-check: " + (AutoSniper.config.playerCheckEnabled ? Formatting.GREEN + "enabled" : Formatting.RED + "disabled");
+        context.drawTextWithShadow(mc.textRenderer, snipeCommand, x, y, color);
     }
 
     public void toggleOverlay() {
