@@ -11,14 +11,6 @@ base {
     archivesName = project.archives_base_name
 }
 
-repositories {
-    // Add repositories to retrieve artifacts from in here.
-    // You should only use this when depending on other mods because
-    // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-    // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-    // for more information about repositories.
-}
-
 dependencies {
 
     // To change the versions see the gradle.properties file
@@ -60,35 +52,16 @@ java {
     withSourcesJar()
 }
 
-/*
-shadowJar {
-    dependencies {
-        include(dependency('javazoom:jlayer'))
-    }
-    // Exclude "mappings" only from javazoom:jlayer
-    exclude {
-        it.name.startsWith('mappings')
-    }
-}
-*/
-
 jar {
     from("LICENSE") {
         rename { "${it}_${project.archivesBaseName}"}
     }
 }
+
 repositories {
     mavenCentral()
 }
 
-dependencies {
-    compileOnly 'org.projectlombok:lombok:1.18.30'
-    annotationProcessor 'org.projectlombok:lombok:1.18.30'
-
-    testCompileOnly 'org.projectlombok:lombok:1.18.30'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
-}
-// configure the maven publication
 publishing {
     publications {
         mavenJava(MavenPublication) {
