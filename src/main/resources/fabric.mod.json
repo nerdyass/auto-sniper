@@ -13,7 +13,7 @@
   ],
   "entrypoints": {
     "main": [
-      "com.bedwars.ntils.ntils"
+      "ass.nerdy.autosniper.AutoSniper"
     ]
   },
   "depends": {
