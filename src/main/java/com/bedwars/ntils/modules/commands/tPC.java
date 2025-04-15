@@ -4,44 +4,46 @@ import com.bedwars.ntils.modules.pC;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EnumChatFormatting;
+import com.mojang.brigadier.CommandDispatcher;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class tPC extends CommandBase {
-    final String prefix = EnumChatFormatting.GRAY + "[" + EnumChatFormatting.LIGHT_PURPLE + "N" + EnumChatFormatting.GRAY + "] ";
+public class tPC {
+    final String prefix = Formatting.GRAY + "[" + Formatting.LIGHT_PURPLE + "N" + Formatting.GRAY + "] ";
 
     private final pC checker;
 
     public tPC(pC checker) {
         this.checker = checker;
+
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
+                register(dispatcher)
+        );
     }
 
-    @Override
-    public String getCommandName() {
-        return "snipe";
-    }
+    public void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
+        dispatcher.register(ClientCommandManager.literal("snipe")
+                .executes(context -> {
+                    checker.tPC();
+                    boolean currentStatus = checker.isPCenabled();
+                    updatePCC(currentStatus);
 
-    @Override
-    public String getCommandUsage(ICommandSender sender) {
-        return "/snipe - Toggle player checking on or off.";
-    }
+                    context.getSource().sendFeedback(
+                            Text.literal(
+                                    prefix + Formatting.GREEN + "Player stats checking is now " + (currentStatus
+                                            ? Formatting.AQUA + "enabled"
+                                            : Formatting.RED + "disabled") + "."));
 
-    @Override
-    public void processCommand(ICommandSender sender, String[] args) {
-        checker.tPC();
-        boolean currentStatus = checker.isPCenabled();
-        updatePCC(currentStatus);
-        sender.addChatMessage(
-                new ChatComponentText(
-                        prefix + EnumChatFormatting.GREEN + "Player stats checking is now " + (currentStatus ? EnumChatFormatting.AQUA + "enabled" : EnumChatFormatting.RED + "disabled") + "."
-                )
+                    return 1;
+                })
         );
     }
 
@@ -64,10 +66,5 @@ public class tPC extends CommandBase {
                 e.printStackTrace();
             }
         }
-    }
-
-    @Override
-    public int getRequiredPermissionLevel() {
-        return 0;
     }
 }

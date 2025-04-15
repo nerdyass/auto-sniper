@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "autosniper",
+  "version": "idk",
+  "name": "Auto Sniper",
+  "description": "A simple Fabric mod that will snipe people for you.",
+  "authors": ["nerdyass", "M4rkoG", "jelteh (snooc) for some of the code"],
+  "contact": {},
+  "license": "MIT",
+  "environment": "*",
+  "mixins": [
+    "autosniper.mixins.json"
+  ],
+  "entrypoints": {
+    "main": [
+      "com.bedwars.ntils.ntils"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.7",
+    "fabric": "*",
+    "minecraft": "1.20.4"
+  }
+}

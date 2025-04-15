@@ -1,45 +1,49 @@
 package com.bedwars.ntils.modules.commands;
 
 import com.google.gson.*;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EnumChatFormatting;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class aK extends CommandBase {
-    private final String prefix = EnumChatFormatting.GRAY + "[" + EnumChatFormatting.LIGHT_PURPLE + "N" + EnumChatFormatting.GRAY + "] ";
+public class aK {
+    private final String prefix = Formatting.GRAY + "[" + Formatting.LIGHT_PURPLE + "N" + Formatting.GRAY + "] ";
 
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    @Override
-    public String getCommandName() {
-        return "key";
+    public aK() {
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
+                register(dispatcher)
+        );
     }
 
-    @Override
-    public String getCommandUsage(ICommandSender sender) {
-        return "/key <apikey>";
+    public void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
+        dispatcher.register(ClientCommandManager.literal("key")
+                .then(ClientCommandManager.argument("apikey", StringArgumentType.string())
+                        .executes(ctx -> {
+                            String apiKey = StringArgumentType.getString(ctx, "apikey");
+                            File jsonFile = new File("config/autosniper.json");
+
+                            JsonAPI(jsonFile, apiKey, ctx.getSource(), "Hypixel API key");
+                            return 1;
+                        }))
+                .executes(ctx -> {
+                    ctx.getSource().sendFeedback(Text.literal(prefix + Formatting.RED + "Usage: /key <apikey>"));
+                    return 0;
+                })
+        );
     }
 
-    @Override
-    public void processCommand(ICommandSender sender, String[] args) {
-        if (args.length < 1) {
-            sender.addChatMessage(new ChatComponentText(prefix + EnumChatFormatting.RED + "Usage: /key <apikey>"));
-            return;
-        }
-
-        String apiKey = args[0];
-        File jsonFile = new File("config/autosniper.json");
-
-        JsonAPI(jsonFile, apiKey, sender, "Hypixel API key");
-    }
-
-    private void JsonAPI(File file, String apiKey, ICommandSender sender, String apiKeyName) {
+    private void JsonAPI(File file, String apiKey, FabricClientCommandSource sender, String apiKeyName) {
         try {
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
@@ -63,14 +67,9 @@ public class aK extends CommandBase {
                 gson.toJson(config, writer);
             }
 
-            sender.addChatMessage(new ChatComponentText(prefix + EnumChatFormatting.LIGHT_PURPLE + apiKeyName + EnumChatFormatting.GREEN + " saved successfully!"));
+            sender.sendFeedback(Text.literal(prefix + Formatting.LIGHT_PURPLE + apiKeyName + Formatting.GREEN + " saved successfully!"));
         } catch (IOException e) {
-            sender.addChatMessage(new ChatComponentText(prefix + EnumChatFormatting.RED + "Failed to save " + apiKeyName + ": " + e.getMessage()));
+            sender.sendFeedback(Text.literal(prefix + Formatting.RED + "Failed to save " + apiKeyName + ": " + e.getMessage()));
         }
-    }
-
-    @Override
-    public int getRequiredPermissionLevel() {
-        return 0;
     }
 }

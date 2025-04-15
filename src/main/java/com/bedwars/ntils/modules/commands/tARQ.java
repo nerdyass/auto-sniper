@@ -2,49 +2,72 @@ package com.bedwars.ntils.modules.commands;
 
 import com.bedwars.ntils.modules.pC;
 import com.google.gson.JsonElement;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EnumChatFormatting;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.mojang.brigadier.CommandDispatcher;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
-public class tARQ extends CommandBase {
+public class tARQ {
     private final pC checker;
-
-    final String prefix = EnumChatFormatting.GRAY + "[" + EnumChatFormatting.LIGHT_PURPLE + "N" + EnumChatFormatting.GRAY + "] ";
+    static final String prefix = Formatting.GRAY + "[" + Formatting.LIGHT_PURPLE + "N" + Formatting.GRAY + "] ";
 
     public tARQ(pC checker) {
         this.checker = checker;
+
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
+                register(dispatcher)
+        );
     }
 
-    @Override
-    public String getCommandName() {
-        return "autorq";
+    public void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
+        dispatcher.register(
+                ClientCommandManager.literal("autorg")
+                        .executes(ctx -> {
+                    checker.setAutoRqEnabled(!checker.isAutoRqEnabled());
+                    boolean enabled = checker.isAutoRqEnabled();
+
+                    updateAutoRqConfig(enabled);
+
+                    ctx.getSource().sendFeedback(
+                            Text.literal(prefix + Formatting.GREEN + "Auto-RQ is now " +
+                                    (enabled ? Formatting.AQUA + "enabled" : Formatting.RED + "disabled"))
+                    );
+
+                            return 1;
+                        })
+        );
     }
 
-    @Override
-    public String getCommandUsage(ICommandSender sender) {
-        return "/autorq - Toggle Auto-RQ on or off.";
-    }
+//    public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
+//        dispatcher.register(literal("autorq")
+//                .requires(source -> source.hasPermissionLevel(0))
+//                .executes(context -> {
+//                    checker.setAutoRqEnabled(!checker.isAutoRqEnabled());
+//                    boolean enabled = checker.isAutoRqEnabled();
+//
+//                    updateAutoRqConfig(enabled);
+//
+//                    context.getSource().sendFeedback(
+//                            () -> Text.literal(prefix + Formatting.GREEN + "Auto-RQ is now " +
+//                                    (enabled ? Formatting.AQUA + "enabled" : Formatting.RED + "disabled")),
+//                            false
+//                    );
+//
+//                    return 1;
+//                })
+//        );
+//    }
 
-    @Override
-    public void processCommand(ICommandSender sender, String[] args) {
-        checker.setAutoRqEnabled(!checker.isAutoRqEnabled());
-
-        String status = checker.isAutoRqEnabled() ? EnumChatFormatting.AQUA + "enabled" : EnumChatFormatting.RED + "disabled";
-
-        updateAutoRqConfig(checker.isAutoRqEnabled());
-
-        sender.addChatMessage(new ChatComponentText(prefix + EnumChatFormatting.GREEN + "Auto-RQ is now " + status));
-    }
-
-    private void updateAutoRqConfig(boolean enabled) {
+    private static void updateAutoRqConfig(boolean enabled) {
         File configFile = new File("config/autosniper.json");
 
         if (configFile.exists()) {
@@ -63,10 +86,5 @@ public class tARQ extends CommandBase {
                 e.printStackTrace();
             }
         }
-    }
-
-    @Override
-    public int getRequiredPermissionLevel() {
-        return 0;
     }
 }

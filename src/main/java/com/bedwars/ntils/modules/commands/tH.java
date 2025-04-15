@@ -2,49 +2,47 @@ package com.bedwars.ntils.modules.commands;
 
 import com.bedwars.ntils.modules.pC;
 import com.google.gson.JsonElement;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EnumChatFormatting;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.mojang.brigadier.CommandDispatcher;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
-public class tH extends CommandBase {
-    final String prefix = EnumChatFormatting.GRAY + "[" + EnumChatFormatting.LIGHT_PURPLE + "N" + EnumChatFormatting.GRAY + "] ";
 
+public class tH {
+    final String prefix = Formatting.GRAY + "[" + Formatting.LIGHT_PURPLE + "N" + Formatting.GRAY + "] ";
     private final pC checker;
 
     public tH(pC checker) {
         this.checker = checker;
+
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
+                register(dispatcher)
+        );
     }
 
-    @Override
-    public String getCommandName() {
-        return "hud";
-    }
+    public void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
+        dispatcher.register(ClientCommandManager.literal("hud")
+                .executes(context -> {
+                    checker.tHudVisibility();
+                    boolean currentStatus = checker.isHudVisible();
+                    updateHudConfig(currentStatus);
 
-    @Override
-    public String getCommandUsage(ICommandSender sender) {
-        return "/hud - Toggle the visibility of the HUD.";
-    }
-
-    @Override
-    public void processCommand(ICommandSender sender, String[] args) {
-        checker.tHudVisibility();
-
-        boolean currentStatus = checker.isHudVisible();
-
-        updateHudConfig(currentStatus);
-
-        sender.addChatMessage(
-                new ChatComponentText(
-                        prefix + EnumChatFormatting.GREEN + "HUD is now " + (currentStatus ? EnumChatFormatting.AQUA + "visible" : EnumChatFormatting.RED + "hidden") + "."
-                )
+                    context.getSource().sendFeedback(Text.literal(
+                                    prefix + Formatting.GREEN + "HUD is now " + (currentStatus
+                                            ? Formatting.AQUA + "visible"
+                                            : Formatting.RED + "hidden") + ".")
+                    );
+                    return 1;
+                })
         );
     }
 
@@ -67,10 +65,5 @@ public class tH extends CommandBase {
                 e.printStackTrace();
             }
         }
-    }
-
-    @Override
-    public int getRequiredPermissionLevel() {
-        return 0;
     }
 }
