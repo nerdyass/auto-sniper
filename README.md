@@ -1,5 +1,6 @@
 # autosniper
 - **Basic text based - json loaded autosniper using forge 1.8.9**
+- **Check the FABRIC branch for a 1.20.4 version (NOT MADE BY ME)**
 
 # Commands
 - **Commands are via ingame chat**
