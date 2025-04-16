@@ -25,11 +25,11 @@
 - Forge 1.8.9 only allows for GSON 2.2.x >, which this project has been adapted for, meaning yes, there's some inefficient code, IT'S NOT MY FAULT!!
 
 # Planned Additions
-- Automatic key validity checks on /key load
-- /targets <list> - shows list of current blacklisted targets
-- UUID inputs for /target
-- Warning messages for rate limits / keys going invalid
-- Code checks so invalid keys dont display as a nicked player
+- ~~Automatic key validity checks on /key load~~
+- ~~/targets <list> - shows list of current blacklisted targets~~
+- ~~UUID inputs for /target~~
+- ~~Warning messages for rate limits / keys going invalid~~
+- ~~Code checks so invalid keys dont display as a nicked player!! (don't know if it works bruh)
 
 # Credits
 - Jelteh (Snooc) for the chattriggers
