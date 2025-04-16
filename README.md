@@ -11,6 +11,7 @@
 - **/key** -> Sets the API key you're using (String -> Key)
 - **/minfkdr** -> Sets the minimum FKDR value you'd like to stay (Float -> 3.5, 70)
 - **/target** -> Sets the inputted player's IGN as a "target" & will alert you of their presence (String -> NerdyAss)
+- **/targets** -> Lists the targets UUIDS and usernames
 
 # Reqiurements
 - Forge 1.8.9 (viaforge 1.19+ wont work) -> https://youtu.be/xd4c0fkvS-k forge tutorial
