@@ -12,7 +12,7 @@
 - **/mode** -> Sets the mode you'd like to auto-rq into (String -> 1s, 2s, 3s, 4s, 4v4)
 - **/key** -> Sets the API key you're using (String -> Key)
 - **/minfkdr** -> Sets the minimum FKDR value you'd like to stay (Double -> 3.5, 70)
-- **/target** -> Sets the inputted player's IGN as a "target" & will alert you of their presence (String -> NerdyAss)
+- **/target** -> Sets the inputted player's IGN/UUID as a "target" & will alert you of their presence (String -> NerdyAss/7d4462a3aed44799a25441d85c3658b2)
 - **/targets** -> Lists the targets UUIDS and usernames
 
 # Reqiurements
