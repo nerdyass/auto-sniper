@@ -3,6 +3,10 @@ package ass.nerdy.autosniper;
 import ass.nerdy.autosniper.event.events.HudRenderEvent;
 import ass.nerdy.autosniper.event.events.ReceiveMessageEvent;
 import ass.nerdy.autosniper.orbit.EventHandler;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.PlayerListEntry;
@@ -14,8 +18,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 
 import static ass.nerdy.autosniper.AutoSniper.mc;
@@ -27,14 +30,14 @@ public class Checker {
 
     private static String fetchPlayerData(String uuid, String currentApiKey) throws IOException {
         URL url = new URL("https://api.hypixel.net/player?key=" + currentApiKey + "&uuid=" + uuid);
-        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
 
         InputStreamReader reader = new InputStreamReader(connection.getInputStream());
         StringBuilder response = new StringBuilder();
         int c;
         while ((c = reader.read()) != -1) {
-            response.append((char)c);
+            response.append((char) c);
         }
 
         return response.toString();
@@ -49,7 +52,7 @@ public class Checker {
         if (!isPlayerInGame()) return;
         String msg = event.getMessage().getLiteralString();
         if (msg == null) return;
-        
+
         if (msg.contains("1st Killer") || msg.contains("joined the lobby") || msg.contains("has joined (")) {
             inBwGame = false;
         } else if (msg.contains("Protect your bed and destroy the enemy beds.") || msg.contains("Players swap teams at random")) {
@@ -69,23 +72,23 @@ public class Checker {
             }
 
             ClientPlayNetworkHandler networkHandler = mc.getNetworkHandler();
-
             Collection<PlayerListEntry> playerInfoCollection = networkHandler.getPlayerList();
             Collection<PlayerListEntry> safePlayerInfoCollection = new CopyOnWriteArrayList<>(playerInfoCollection);
-            List<String> blacklistedUsers = AutoSniper.config.getBlacklistedUsers();
+            Map<String, String> blacklist = AutoSniper.config.getBlacklistedUsers();
 
-            ExecutorService executor = Executors.newFixedThreadPool(8); // 8 to slightly help with ratelimit
+            ExecutorService executor = Executors.newFixedThreadPool(8);
             List<Future<Boolean>> futures = new CopyOnWriteArrayList<>();
 
             for (PlayerListEntry playerInfo : safePlayerInfoCollection) {
                 futures.add(executor.submit(() -> {
                     String uuid = playerInfo.getProfile().getId().toString();
+                    String uuidWithoutDashes = uuid.replace("-", "");
                     String ign = playerInfo.getProfile().getName();
                     String tabDisplayName = getFormattedDisplayName(ign);
 
                     if ("NONE".equals(tabDisplayName)) return false;
 
-                    if (blacklistedUsers.contains(ign)) {
+                    if (isBlacklisted(uuidWithoutDashes, ign, blacklist)) {
                         playSound(SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 1.0f, 1.0f);
                         AutoSniper.log(Formatting.RED + tabDisplayName + Formatting.RED + " is BLACKLISTED!");
                         return true;
@@ -122,10 +125,9 @@ public class Checker {
                 }
             }
 
-            System.out.println("Auto-RQ enabled, Command: " + AutoSniper.config.autoRqCommand);
             inBwGame = false;
-
             AutoSniper.log("§aChecks completed");
+
             if (!anyValidPlayer && AutoSniper.config.autoRqEnabled && !AutoSniper.config.autoRqCommand.isEmpty()) {
                 mc.getNetworkHandler().sendCommand(AutoSniper.config.autoRqCommand);
                 AutoSniper.log("§aAuto-RQ executed: " + AutoSniper.config.autoRqCommand);
@@ -150,7 +152,18 @@ public class Checker {
             }
             String responseBody = fetchPlayerData(uuid, currentApiKey);
 
-            if (!responseBody.contains("\"success\":true") || responseBody.contains("\"player\":null")) {
+            if (!responseBody.contains("\"success\":true")) {
+                if (responseBody.contains("Invalid API key")) {
+                    AutoSniper.log(Formatting.RED + "Warning: Your Hypixel API key is invalid.");
+                } else if (responseBody.contains("key throttle")) {
+                    AutoSniper.log(Formatting.RED + "Warning: Your Hypixel API key is being rate-limited (too many requests).");
+                } else {
+                    AutoSniper.log(Formatting.RED + "Warning: Failed to fetch data. Check your API key.");
+                }
+                return null;
+            }
+
+            if (responseBody.contains("\"player\":null")) {
                 return null;
             }
 
@@ -160,36 +173,34 @@ public class Checker {
             int finalKills = parseIntSafely(killsStr);
             int finalDeaths = parseIntSafely(deathsStr);
 
-            double fkdr;
-            if (finalDeaths == 0) {
-                if (finalKills == 0) {
-                    fkdr = 0.0;
-                } else {
-                    fkdr = finalKills;
-                }
-            } else {
-                fkdr = (double)finalKills / finalDeaths;
-            }
+            double fkdr = finalDeaths == 0 ? finalKills : (double) finalKills / finalDeaths;
+            return new PlayerData(Math.round(fkdr * 10.0) / 10.0);
 
-            fkdr = Math.round(fkdr * 10.0) / 10.0;
-
-            return new PlayerData(fkdr);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    // this is horrid but i was learning Json Java when i made it and i cba to update it.
     public String extractJsonValue(String json, String key) {
-        int startIdx = json.indexOf("\"" + key + "\":") + key.length() + 3;
-        int endIdx = json.indexOf(",", startIdx);
-        if (endIdx == -1) {
-            endIdx = json.indexOf("}", startIdx);
+        try {
+            JsonObject obj = JsonParser.parseString(json).getAsJsonObject();
+            JsonElement value = obj.get(key);
+            if (value.isJsonPrimitive()) {
+                JsonPrimitive prim = value.getAsJsonPrimitive();
+                if (prim.isString()) return prim.getAsString();
+                if (prim.isNumber()) return prim.getAsNumber().toString();
+                if (prim.isBoolean()) return String.valueOf(prim.getAsBoolean());
+            }
+        } catch (Exception e) {
+            AutoSniper.log(Formatting.RED + "Failed to parse JSON: " + e.getMessage());
         }
-        return json.substring(startIdx, endIdx).trim();
+        return null;
     }
 
+    private boolean isBlacklisted(String uuid, String username, Map<String, String> blacklist) {
+        return blacklist.containsKey(uuid) || blacklist.containsKey(username);
+    }
 
     public void togglePlayerCheckEnabled() {
         AutoSniper.config.playerCheckEnabled = !AutoSniper.config.playerCheckEnabled;
@@ -199,7 +210,6 @@ public class Checker {
     public void onRenderOverlay(HudRenderEvent event) {
         if (!overlay) return;
 
-        // FontRenderer font = mc.fontRendererObj;
         DrawContext context = event.drawContext;
 
         int x = 10;

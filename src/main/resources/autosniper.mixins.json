@@ -1,11 +1,11 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.bedwars.ntils.mixins",
+  "package": "ass.nerdy.autosniper.mixins",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "ass.nerdy.autosniper.mixins.InGameHudMixin",
-    "ass.nerdy.autosniper.mixins.ChatHudMixin"
+    "InGameHudMixin",
+    "ChatHudMixin"
   ],
   "injectors": {
     "defaultRequire": 1

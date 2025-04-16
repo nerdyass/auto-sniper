@@ -8,16 +8,19 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Config {
     public boolean autoRqEnabled;
     public boolean playerCheckEnabled;
     public boolean hudVisible;
-    public int fkdrValue;
+    public double fkdrValue;
     public String autoRqCommand;
     public String apiKey;
 
@@ -90,7 +93,7 @@ public class Config {
 
     public boolean setFKDRValue(String str) {
         try {
-            AutoSniper.config.fkdrValue = Integer.parseInt(str, 10);
+            AutoSniper.config.fkdrValue = Double.parseDouble(str);
             return true;
         } catch (NumberFormatException ex) {
             AutoSniper.log(Formatting.RED + "Invalid FKDR value! Please enter a valid number.");
@@ -98,15 +101,24 @@ public class Config {
         }
     }
 
-    public List<String> getBlacklistedUsers() {
-        File blacklistFile = new File("config/blacklist.txt");
-        if (blacklistFile.isFile()) {
+    public Map<String, String> getBlacklistedUsers() {
+        File blacklistFile = new File("config/blacklist.json");
+        Map<String, String> blacklist = new HashMap<>();
+
+        if (blacklistFile.exists() && blacklistFile.isFile()) {
             try {
-                return Files.readAllLines(Paths.get(blacklistFile.toURI()));
-            } catch (IOException ex) {
-                ex.printStackTrace();
+                String json = Files.readString(blacklistFile.toPath(), StandardCharsets.UTF_8);
+                JsonObject obj = JsonParser.parseString(json).getAsJsonObject();
+
+                for (String key : obj.keySet()) {
+                    blacklist.put(key, obj.get(key).getAsString());
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
-        return Collections.emptyList();
+
+        return blacklist;
     }
 }
