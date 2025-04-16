@@ -1,3 +1,6 @@
+# NOTE
+- THIS VERSION WAS NOT TESTED, IF YOU FIND ANY BUGS PLEASE OPEN AN ISSUE
+
 # autosniper
 - **Basic text based - json loaded autosniper using fabric 1.20.4**
 
@@ -34,6 +37,3 @@
 - Jelteh (Snooc) for the chattriggers
 - Elapse for paying for me to bother making this public - visit his shop: gg/elapse (i didn't get paid to make this version public)
 - Donate me litecoin cus im broke and making this for free: LRCBu3uoebRcDi2jTZmFNaJPMCyr5ChYvT (nerdy) Ld9X2E9Aq2pT7EXvgxWV35eCuPHATYwyJb (markog)
-
-# NOTE
-- THIS VERSION WAS NOT TESTED, IF YOU FIND ANY BUGS PLEASE OPEN AN ISSUE
