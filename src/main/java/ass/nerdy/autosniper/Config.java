@@ -17,7 +17,7 @@ public class Config {
     public boolean autoRqEnabled;
     public boolean playerCheckEnabled;
     public boolean hudVisible;
-    public double fkdrValue;
+    public float fkdrValue;
     public String autoRqCommand;
     public String apiKey;
 
