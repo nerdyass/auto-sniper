@@ -1,7 +1,6 @@
 package ass.nerdy.autosniper.commands;
 
 import ass.nerdy.autosniper.AutoSniper;
-import ass.nerdy.autosniper.Checker;
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -18,7 +17,7 @@ public class AutoRqCmd {
 
     public void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
         dispatcher.register(
-                ClientCommandManager.literal("autorg")
+                ClientCommandManager.literal("autorq")
                         .executes(ctx -> {
                             AutoSniper.config.autoRqEnabled = !AutoSniper.config.autoRqEnabled;
                             AutoSniper.config.save();
