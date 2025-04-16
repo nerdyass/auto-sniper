@@ -25,7 +25,7 @@
 # Notes
 - I'm happy to provide **very limited** support for this; if you have an issue **do not** dm/ping me, please make a question thread in discord.gg/nerdyass
 - Priority for those that have purchased my configs/Myau
-- Forge 1.8.9 only allows for GSON 2.2.x >, which this project has been adapted for, meaning yes, there's some inefficient code, IT'S NOT MY FAULT!! (i am not fixing nerdy's code)
+- Forge 1.8.9 only allows for GSON 2.2.x >, which this project has been adapted for, meaning yes, there's some inefficient code, IT'S NOT MY FAULT!! (i ended up fixing most of the code)
 
 # Planned Additions
 - ~~Automatic key validity checks on /key load~~
