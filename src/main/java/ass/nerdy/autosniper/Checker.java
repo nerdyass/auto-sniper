@@ -1,5 +1,9 @@
 package ass.nerdy.autosniper;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.network.NetworkPlayerInfo;
@@ -15,6 +19,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 import static ass.nerdy.autosniper.AutoSniper.mc;
@@ -72,7 +77,7 @@ public class Checker {
 
             Collection<NetworkPlayerInfo> playerInfoCollection = Minecraft.getMinecraft().getNetHandler().getPlayerInfoMap();
             Collection<NetworkPlayerInfo> safePlayerInfoCollection = new CopyOnWriteArrayList<>(playerInfoCollection);
-            List<String> blacklistedUsers = AutoSniper.config.getBlacklistedUsers();
+            Map<String, String> blacklist = AutoSniper.config.getBlacklistedUsers();
 
             ExecutorService executor = Executors.newFixedThreadPool(8); // 8 to slightly help with ratelimit
             List<Future<Boolean>> futures = new CopyOnWriteArrayList<>();
@@ -80,12 +85,13 @@ public class Checker {
             for (NetworkPlayerInfo playerInfo : safePlayerInfoCollection) {
                 futures.add(executor.submit(() -> {
                     String uuid = playerInfo.getGameProfile().getId().toString();
+                    String uuidWithoutDashes = uuid.replace("-", "");
                     String ign = playerInfo.getGameProfile().getName();
                     String tabDisplayName = getFormattedDisplayName(ign);
 
                     if ("NONE".equals(tabDisplayName)) return false;
 
-                    if (blacklistedUsers.contains(ign)) {
+                    if (isBlacklisted(uuidWithoutDashes, ign, blacklist)) {
                         playSound("random.levelup", 1.0f, 1.0f);
                         AutoSniper.log(EnumChatFormatting.RED + tabDisplayName + EnumChatFormatting.RED + " is BLACKLISTED!");
                         return true;
@@ -150,7 +156,18 @@ public class Checker {
             }
             String responseBody = fetchPlayerData(uuid, currentApiKey);
 
-            if (!responseBody.contains("\"success\":true") || responseBody.contains("\"player\":null")) {
+            if (!responseBody.contains("\"success\":true")) {
+                if (responseBody.contains("Invalid API key")) {
+                    AutoSniper.log(EnumChatFormatting.RED + "Warning: Your Hypixel API key is invalid.");
+                } else if (responseBody.contains("key throttle")) {
+                    AutoSniper.log(EnumChatFormatting.RED + "Warning: Your Hypixel API key is being rate-limited (too many requests).");
+                } else {
+                    AutoSniper.log(EnumChatFormatting.RED + "Warning: Failed to fetch data. Check your API key.");
+                }
+                return null;
+            }
+
+            if (responseBody.contains("\"player\":null")) {
                 return null;
             }
 
@@ -160,36 +177,34 @@ public class Checker {
             int finalKills = parseIntSafely(killsStr);
             int finalDeaths = parseIntSafely(deathsStr);
 
-            double fkdr;
-            if (finalDeaths == 0) {
-                if (finalKills == 0) {
-                    fkdr = 0.0;
-                } else {
-                    fkdr = finalKills;
-                }
-            } else {
-                fkdr = (double)finalKills / finalDeaths;
-            }
+            double fkdr = finalDeaths == 0 ? finalKills : (double) finalKills / finalDeaths;
+            return new PlayerData(Math.round(fkdr * 10.0) / 10.0);
 
-            fkdr = Math.round(fkdr * 10.0) / 10.0;
-
-            return new PlayerData(fkdr);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    // this is horrid but i was learning Json Java when i made it and i cba to update it.
     public String extractJsonValue(String json, String key) {
-        int startIdx = json.indexOf("\"" + key + "\":") + key.length() + 3;
-        int endIdx = json.indexOf(",", startIdx);
-        if (endIdx == -1) {
-            endIdx = json.indexOf("}", startIdx);
+        try {
+            JsonObject obj = new JsonParser().parse(json).getAsJsonObject();
+            JsonElement value = obj.get(key);
+            if (value != null && value.isJsonPrimitive()) {
+                JsonPrimitive prim = value.getAsJsonPrimitive();
+                if (prim.isString()) return prim.getAsString();
+                if (prim.isNumber()) return prim.getAsNumber().toString();
+                if (prim.isBoolean()) return String.valueOf(prim.getAsBoolean());
+            }
+        } catch (Exception e) {
+            AutoSniper.log(EnumChatFormatting.RED + "Failed to parse JSON: " + e.getMessage());
         }
-        return json.substring(startIdx, endIdx).trim();
+        return null;
     }
 
+    private boolean isBlacklisted(String uuid, String username, Map<String, String> blacklist) {
+        return blacklist.containsKey(uuid) || blacklist.containsKey(username);
+    }
 
     public void togglePlayerCheckEnabled() {
         AutoSniper.config.playerCheckEnabled = !AutoSniper.config.playerCheckEnabled;

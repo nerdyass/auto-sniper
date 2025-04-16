@@ -23,10 +23,23 @@ public class MinFKDRCmd extends CommandBase {
             return;
         }
 
-        if (AutoSniper.config.setFKDRValue(args[0])) {
-            AutoSniper.log(EnumChatFormatting.GREEN + "Minimum FKDR set to: " + EnumChatFormatting.AQUA + args[0]);
-        } else {
-            AutoSniper.log(EnumChatFormatting.RED + "Invalid number");
+        String input = args[0];
+
+        try {
+            double fkdr = Float.parseFloat(input);
+            if (fkdr < 0) {
+                AutoSniper.log(EnumChatFormatting.RED + "FKDR cannot be negative.");
+                return;
+            }
+
+            if (AutoSniper.config.setFKDRValue(input)) {
+                AutoSniper.log(EnumChatFormatting.GREEN + "Minimum FKDR set to: " + EnumChatFormatting.AQUA + input);
+            } else {
+                AutoSniper.log(EnumChatFormatting.RED + "Failed to set FKDR.");
+            }
+
+        } catch (NumberFormatException e) {
+            AutoSniper.log(EnumChatFormatting.RED + "Invalid number: FKDR must be a valid number (e.g., 1.5)");
         }
     }
 

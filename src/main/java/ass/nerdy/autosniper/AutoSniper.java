@@ -33,6 +33,7 @@ public class AutoSniper {
         ClientCommandHandler.instance.registerCommand(new MinFKDRCmd());
         ClientCommandHandler.instance.registerCommand(new KeyCmd());
         ClientCommandHandler.instance.registerCommand(new TargetCmd());
+        ClientCommandHandler.instance.registerCommand(new TargetsCmd());
     }
 
     public static void log(String message) {
