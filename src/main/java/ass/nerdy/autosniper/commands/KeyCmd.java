@@ -33,7 +33,7 @@ public class KeyCmd extends CommandBase {
         String apiKeyName = "Hypixel API key";
 
         try {
-            URL url = new URL("https://api.hypixel.net/key?key=" + apiKey);
+            URL url = new URL("https://api.hypixel.net/player?key=" + apiKey + "&uuid=00000000-0000-0000-0000-000000000000");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
 
